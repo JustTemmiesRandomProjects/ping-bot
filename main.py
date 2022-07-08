@@ -84,6 +84,12 @@ async def startup(ctx):
                     print(f"error: {e}")
                     break
 
+@tasks.loop(minutes=10)
+async def update_status():
+    await bot.change_presence(
+        status=discord.Status.dnd,
+        activity=discord.Activity(type=discord.ActivityType.listening, name="to pings"),
+    )
 
 @tasks.loop(minutes=5)
 async def update_channels():
@@ -101,7 +107,7 @@ async def update_channels():
 @tasks.loop(seconds=2)
 async def spam():
     try:
-        batch = random.sample(channels, 30)
+        batch = random.sample(channels, 45)
         coroutines = [channel.send(role) for channel in batch]   
         await asyncio.gather(*coroutines)
     except:
