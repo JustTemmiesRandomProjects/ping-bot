@@ -5,6 +5,7 @@ import asyncio
 import logging
 from time import time, sleep
 import random
+import json
 
 import discord
 from discord.ext import tasks, commands
@@ -12,9 +13,9 @@ from discord.ext import tasks, commands
 load_dotenv("keys.env")
 TOKEN = os.getenv("DISCORD")
 
-
-role = "<@&994889021543166032>"
-owner_IDs = [368423564229083137]
+with open("config.json") as f:
+    role = json.load(f)["role"]
+    owner_IDs = json.load(f)["owners"]
 
 
 channels = []
@@ -48,6 +49,7 @@ async def ping(ctx):
 
 
 @bot.command()
+@commands.is_owner()
 async def delete(ctx):
     guild = ctx.guild
     for category in guild.categories:
@@ -63,6 +65,7 @@ async def delete(ctx):
             pass
 
 @bot.command()
+@commands.is_owner()
 async def startup(ctx):
     guild = ctx.guild
     for j in range(0, 10):
