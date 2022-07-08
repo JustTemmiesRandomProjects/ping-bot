@@ -1,2 +1,2 @@
 python-dotenv
-git+https://github.com/Rapptz/discord.py
+git+https://github.com/Rapptz/discord.py # it just needs discord.py 2.0 or higher, tho later versions might break it
