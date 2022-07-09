@@ -14,8 +14,10 @@ load_dotenv("keys.env")
 TOKEN = os.getenv("DISCORD")
 
 with open("config.json") as f:
-    role = json.load(f)["role"]
-    owner_IDs = json.load(f)["owners"]
+    jsonfile = json.load(f)
+    
+role = jsonfile["role"]
+owner_IDs = jsonfile["owners"]
 
 
 channels = []
