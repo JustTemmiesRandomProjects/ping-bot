@@ -1,4 +1,3 @@
-from http.client import HTTPException
 import os
 from dotenv import load_dotenv
 import asyncio
@@ -6,6 +5,7 @@ import logging
 from time import time, sleep
 import random
 import json
+import glob
 
 import discord
 from discord.ext import tasks, commands
@@ -14,13 +14,13 @@ load_dotenv("keys.env")
 TOKEN = os.getenv("DISCORD")
 
 with open("config.json") as f:
-    jsonfile = json.load(f)
+    config = json.load(f)
     
-role = jsonfile["role"]
-owner_IDs = jsonfile["owners"]
+owner_IDs = config["OWNER_IDS"]
 
 
 channels = []
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,77 +32,52 @@ logging.basicConfig(
 logging.error("error")
 logging.critical("critical")
 
+intents = discord.Intents.default()
+intents.message_content = True
+
 bot = commands.Bot(
     command_prefix = "--",
-    owner_ids = owner_IDs,
-    intents = discord.Intents.default()
+    owner_ids = [368423564229083137],
+    intents = intents
 )
 
 @bot.event
 async def on_ready():
+    print("Loading cogs...")
+    # loads cogs
+    for filename in glob.iglob("./cogs/**", recursive=True):
+        if filename.endswith('.py'):
+            filename = filename[2:].replace("/", ".") # goes from "./cogs/economy.py" to "cogs.economy.py"
+            await bot.load_extension(f'{filename[:-3]}') # removes the ".py" from the end of the filename, to make it into cogs.economy
+
+
     print(f"Logged in as {bot.user.name}")
     
+    update_status.start()    
     update_channels.start()
-    spam.start()
+    spam_task.start()
 
 @bot.command()
 async def ping(ctx):
     await ctx.send(f"Pong! {round(bot.latency * 1000)}ms")
 
 
-@bot.command()
-@commands.is_owner()
-async def delete(ctx):
-    guild = ctx.guild
-    for category in guild.categories:
-        try:
-            await category.delete()
-        except:
-            pass
-
-    for channel in guild.channels:
-        try:
-            await channel.delete()
-        except:
-            pass
-
-@bot.command()
-@commands.is_owner()
-async def startup(ctx):
-    guild = ctx.guild
-    for j in range(0, 10):
-        try:
-            await guild.create_category(name=f"spam {j+1}")
-        except Exception as e:
-            print(e)
-            return
-            
-        for i in range(1, 51):
-            try:
-                channel = await guild.create_text_channel(f"spam-{j+1} - {i}", category=guild.categories[j])
-                print("creating channel \"spam-{j+1}-{i}\"")
-            except Exception as e:
-                if e == HTTPException:
-                    print("max channels reached")
-                    break
-                else:
-                    print(f"error: {e}")
-                    break
-
 @tasks.loop(minutes=10)
 async def update_status():
+    print("updating status")
     await bot.change_presence(
         status=discord.Status.dnd,
         activity=discord.Activity(type=discord.ActivityType.listening, name="to pings"),
     )
 
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=30)
 async def update_channels():
+    print("updating cached channels")
     rawChannels = []
     for guild in bot.guilds:
         for channel in guild.text_channels:
             rawChannels.append(channel)
-            sleep(0.05)
+            sleep(0.005)
 
     channels.clear()
     for x, i in enumerate(rawChannels):
@@ -110,14 +85,14 @@ async def update_channels():
             channels.append(i)
             
 @tasks.loop(seconds=2)
-async def spam():
+async def spam_task():
     try:
         batch = random.sample(channels, 45)
-        coroutines = [channel.send(role) for channel in batch]   
+        coroutines = [channel.send("@everyone") for channel in batch]   
         await asyncio.gather(*coroutines)
     except:
         print("rate limited")
-        spam.stop()
+        spam_task.stop()
         return
 
 
