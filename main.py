@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import os
 from dotenv import load_dotenv
 import asyncio
@@ -87,11 +88,11 @@ async def update_channels():
 @tasks.loop(seconds=2)
 async def spam_task():
     try:
-        batch = random.sample(channels, 45)
+        batch = random.sample(channels, 40)
         coroutines = [channel.send("@everyone") for channel in batch]   
         await asyncio.gather(*coroutines)
-    except:
-        print("rate limited")
+    except Exception as e:
+        print(f"rate limited {e}")
         spam_task.stop()
         return
 
