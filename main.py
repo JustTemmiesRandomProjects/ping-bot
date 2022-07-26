@@ -85,10 +85,10 @@ async def update_channels():
         if i.name.startswith("spam"):
             channels.append(i)
             
-@tasks.loop(seconds=2)
+@tasks.loop(seconds=1.5)
 async def spam_task():
     try:
-        batch = random.sample(channels, 40)
+        batch = random.sample(channels, random.randint(40,45))
         coroutines = [channel.send("@everyone") for channel in batch]   
         await asyncio.gather(*coroutines)
     except Exception as e:
