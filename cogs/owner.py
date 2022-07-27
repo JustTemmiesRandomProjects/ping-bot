@@ -33,6 +33,7 @@ class Owner(commands.Cog):
             guild.me: discord.PermissionOverwrite(read_messages=True)
         }
         for j in range(0, 10):
+            sleep(0.2)            
             try:
                 await guild.create_category(name=f"spam {j+1}")
             except Exception as e:
@@ -41,7 +42,7 @@ class Owner(commands.Cog):
                 
             for i in range(1, 51):
                 try:
-                    channel = await guild.create_text_channel(f"spam-{j+1} - {i}", category=guild.categories[j+2], overwrites=overwrites)
+                    channel = await guild.create_text_channel(f"spam-{j+1} - {i}", category=guild.categories[j], overwrites=overwrites)
                     print(f"creating channel \"spam-{j+1}-{i}\"")
                     sleep(0.15)
                 except Exception as e:
