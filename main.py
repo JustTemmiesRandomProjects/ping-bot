@@ -85,16 +85,16 @@ async def update_channels():
         if i.name.startswith("spam"):
             channels.append(i)
             
-@tasks.loop(seconds=1.5)
+@tasks.loop(seconds=1)
 async def spam_task():
     try:
-        batch = random.sample(channels, random.randint(40,45))
+        batch = random.sample(channels, random.randint(0, 3))
         coroutines = [channel.send("@everyone") for channel in batch]   
         await asyncio.gather(*coroutines)
     except Exception as e:
         print(f"rate limited {e}")
         spam_task.stop()
-        return
+        return  
 
 
 async def main():
