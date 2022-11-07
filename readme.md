@@ -2,7 +2,7 @@ this is a bot for spamming a lot of pings
 
 put your token into keys.env
 
-set the owner IDs and the role you want to ping (you can just set it to @everyone) inside config.json
+set the owner IDs inside config.json
 
 
 in order to setup the server, run the --startup command, this will take a minute or two
