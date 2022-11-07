@@ -38,7 +38,7 @@ intents.message_content = True
 
 bot = commands.Bot(
     command_prefix = "--",
-    owner_ids = [368423564229083137],
+    owner_ids = owner_IDs,
     intents = intents
 )
 
